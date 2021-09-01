@@ -1,15 +1,31 @@
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 const express = require("express");
 const multer = require('multer');
+
 const router = express.Router();
-const upload = multer({dest: "public/data/uploads"});
 const videoController = require('../controllers/videoController');
 const serviceController = require('../controllers/serviceController');
+
+let tmpDir;
+const appPrefix = 'vidoeuploader-software';
+try {
+  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), appPrefix));
+  // the rest of your app goes here
+}
+catch {
+  // handle error
+}
+
+const upload = multer({dest: tmpDir});
+
 
 // returns information about the API. Version, description of other routes, etc. Whatever you’d like
 router.get("/info", serviceController.aboutApp);
 
 // Retrieve the names of all uploaded assets.
-router.get("/assets", );
+router.get("/assets", videoController.getAssets);
 
 // Returns the metadata about a specific asset
 router.get("/metadata", );
