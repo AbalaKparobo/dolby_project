@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 9090
 app.use(cors());
 app.use(express.json());
 
-app.use("/api", videoRoutes);
+app.use("/v1/api", videoRoutes);
 
 app.listen(PORT, err => {
     // AWSConnect.connectS3();

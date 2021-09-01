@@ -1,5 +1,5 @@
 exports.aboutApp = (req, res) => {
-    res.send(about);
+    res.status(200).send(about);
 }
 
 const about = {

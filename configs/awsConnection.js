@@ -4,23 +4,63 @@ const { promisify } = require('util');
 const AWS = require('aws-sdk');
 
 AWS.config.update({
-    accessKeyId: process.env.ACCESS_KEY_ID,
-    secretAccessKey: process.env.SECRET_ACCESS_KEY,
-    region: process.env.REGION
+    accessKeyId: "AKIATKYTXB2X72VB5E4Z",
+    secretAccessKey: "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",
+    region: 'us-west-2'
 });
 
-const BUCKET_NAME = process.env.BUCKET_NAME;
+const BUCKET_NAME = 'videos-folder-001';
 
 const s3 = new AWS.S3();
 
 
 exports.connectS3 = () => {
-    if(!bucketExist(BUCKET_NAME)) {
-        createBucket(BUCKET_NAME);
-    }
-    console.log("AWS S3 bucket ready");
+    bucketExist(BUCKET_NAME)
+    .then(data => {
+        console.log(data);
+    })
+    .catch(err => console.log(err))
+    //     createBucket(BUCKET_NAME);
+    // }
+    // console.log("AWS S3 bucket ready");
 }
 
+const bucketExist = async (bucket = BUCKET_NAME) => {
+    // should return 200 ok else doesnot exit or no access
+    const params = {
+        Bucket: bucket
+    };
+    const headBucket = promisify(s3.headBucket.bind(s3));
+    try {
+        let data = await headBucket(params);
+        console.log(data);
+        return data;
+    } catch(err) {console.log(err)}
+    //    s3.headBucket(params, function(err, data) {
+    //      if (err) console.log(err, err.stack); // an error occurred
+    //      else     console.log(data);           // successful response
+    //    });
+};
+
+const createBucket = async(bucketName = BUCKET_NAME) => {
+
+    let bucketParams = {
+        Bucket : bucketName
+    };
+    const createBucket = promisify(s3.createBucket.bind(s3))
+    try {
+        const data = await createBucket(bucketParams)
+        return data;
+    } catch(err) {console.log(err)}
+    
+    // return s3.createBucket(bucketParams, function(err, data) {
+    //     if (err) {
+    //       console.log("Error", err);
+    //     } else {
+    //       return data.Location;
+    //     }
+    // });
+};
 
 function fetchBuckets(){
     let result = [];
@@ -34,74 +74,59 @@ function fetchBuckets(){
       });
     return result;
 };
-// const res = fetchBuckets();
-// console.log(res);
 
-function bucketExist(bucketName){
-    const getBuckets = promisify(fetchBuckets);
-    console.log(getBuckets);
-    return getBuckets()
-    .then(buckets => {
-        buckets.forEach(bucket => {
-            if(bucket == bucketName) {
-                console.log(bucket);
-                return true;
-            }
-        });
-        return false;
-    })
-};
-// let res2 = bucketExist(BUCKET_NAME);
-// console.log(res2.re);
-
-function createBucket(bucketName){
-
-    let bucketParams = {
-        Bucket : bucketName
-    };
-      
-    return s3.createBucket(bucketParams, function(err, data) {
-        if (err) {
-          console.log("Error", err);
-        } else {
-          return data.Location;
-        }
-    });
-};
-
-exports.uploadToBucket = (file, metadata, bucket = BUCKET_NAME) => {
-    console.log("starting upload");
-
-    let uploadParams = {Bucket: bucket, Key: '', Body: '', metadata: metadata};
+exports.uploadToBucket = async (file, key, metadata, bucket = BUCKET_NAME) => {
 
     let fileStream = fs.createReadStream(file);
     fileStream.on('error', function(err) {
         console.log('File Error', err);
     });
-    uploadParams.Body = fileStream;
-    uploadParams.Key = path.basename(file);
-
-    // call S3 to retrieve upload file to specified bucket
-    s3.upload (uploadParams, function (err, data) {
-        if (err) {
-            console.log("Error", err);
-        } if (data) {
-            console.log("Upload Success", data.Location);
+    let uploadParams = {
+        Bucket: bucket,
+        Key: key,
+        Body: fileStream,
+        Metadata: {
+            ffprobe: JSON.stringify(metadata)
         }
-    });
+    };
+    const upload = promisify(s3.upload.bind(s3));
+    try {
+        let data = await upload(uploadParams);
+        return data;
+    } catch(err) {console.log(err)}
 }
 
-exports.getAssets = (bucket = BUCKET_NAME) => {
-    let bucketParams = {
+exports.getAssets = async (bucket = BUCKET_NAME) => {
+    const bucketParams = {
         Bucket : bucket,
-      };
-      
-      // Call S3 to obtain a list of the objects in the bucket
-      s3.listObjects(bucketParams, function(err, data) {
-        if (err) {
-          console.log("Error", err);
-        } else {
-          console.log("Success", data);
-        }
-    });
+    };
+    const listObjects = promisify(s3.listObjects.bind(s3));
+    try {
+        let data = await listObjects(bucketParams);
+        return data;
+    } catch(err) {console.log(err)}
+}
+
+exports.getAsset = async (key, bucket = BUCKET_NAME) => {
+    const params = {
+        Bucket: bucket,
+        Key: key
+    };
+    const getObject = promisify(s3.getObject.bind(s3));
+    try {
+        let data = await getObject(params);
+        return data;
+    } catch(err) {console.log(err)}
+}
+
+exports.getMetadata = async (key, bucket = BUCKET_NAME) => {
+    const params = {
+        Bucket: bucket, 
+        Key: key
+    };
+    const headObject = promisify(s3.headObject.bind(s3));
+    try {
+        let data = await headObject(params);
+        return data;
+    } catch(err) {console.log(err)}
 }
