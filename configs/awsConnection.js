@@ -4,12 +4,12 @@ const { promisify } = require('util');
 const AWS = require('aws-sdk');
 
 AWS.config.update({
-    accessKeyId: "AKIATKYTXB2X72VB5E4Z",
-    secretAccessKey: "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",
-    region: 'us-west-2'
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY,
+    region: process.env.REGION
 });
 
-const BUCKET_NAME = 'videos-folder-001';
+const BUCKET_NAME = process.env.BUCKET_NAME;
 
 const s3 = new AWS.S3();
 
