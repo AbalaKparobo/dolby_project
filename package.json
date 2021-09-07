@@ -9,14 +9,23 @@
     "express": "^4.17.1",
     "ffprobe": "^1.1.2",
     "ffprobe-static": "^3.0.0",
-    "multer": "^1.4.3"
+    "fluent-ffmpeg": "^2.1.2",
+    "multer": "^1.4.3",
+    "sinon": "^11.1.2"
   },
   "devDependencies": {
-    "nodemon": "^2.0.12"
+    "chai": "^4.3.4",
+    "mocha": "^9.1.1",
+    "nodemon": "^2.0.12",
+    "supertest": "^6.1.6"
   },
   "scripts": {
+    "build": "docker build . -t services/video-uploader",
+    "startd": "docker run -p 9090:9090 -d services/video-uploader",
     "start": "node app.js",
-    "start-dev": "nodemon app.js"
+    "start-dev": "nodemon app.js",
+    "deploy": " npm test && npm run build && npm run startd && docker ps",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
