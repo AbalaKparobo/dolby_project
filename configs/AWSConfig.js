@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const AWS = require('aws-sdk');
+const Stream  = require('stream');
 
 module.exports = class AWSConnect {
 
@@ -9,6 +10,7 @@ module.exports = class AWSConnect {
     }
     
     init() {
+        
         AWS.config.update({
             accessKeyId: process.env.ACCESS_KEY_ID,
             secretAccessKey: process.env.SECRET_ACCESS_KEY,
@@ -16,9 +18,7 @@ module.exports = class AWSConnect {
         });
         
         const BUCKET_NAME = process.env.BUCKET_NAME;
-        
         this.s3 = new AWS.S3();
-
         this.initBucket();
     }
 
@@ -87,6 +87,25 @@ module.exports = class AWSConnect {
             const data = await this.s3.headObject(params).promise();
             return data;
         } catch(err) {console.log(err)}
+    }
+
+    getObjectStream = (key, bucket = this.BUCKET_NAME) => {
+
+        return this.s3.getObject({
+          Bucket: bucket,
+          Key: key
+        }).createReadStream()
+      }
+
+      uploadFromStream = (key, bucket = this.BUCKET_NAME) =>  {
+        const pass = new Stream.PassThrough();
+      
+        const params = {Bucket: bucket, Key: key, Body: pass};
+        try {
+            const upload =  this.s3.upload(params).promise();
+            
+              return pass;
+        } catch (err) { console.log(err) }
     }
 
 }

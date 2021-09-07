@@ -4,19 +4,17 @@ const path = require('path');
 const multer = require('multer');
 const express = require("express");
 
-const router = express.Router();
-// const videoController = require('../controllers/videoController');
-const serviceController = require('../controllers/serviceController');
-const VideoControllers = require('../controllers/VideoControllers');
 const S3client = require('../configs/AWSConfig');
+const VideoControllers = require('../controllers/VideoControllers');
+const serviceController = require('../controllers/serviceController');
+
+const router = express.Router();
 
 let tmpDir;
 const appPrefix = 'vidoeuploader';
 try {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), appPrefix));
-}
-catch(err) {
-  // properly handle error
+} catch(err) {
   console.log(err);
 }
 
@@ -32,6 +30,6 @@ router.get("/metadata", videoController.getMetadata);
 
 router.post("/upload", upload.single("files"), videoController.uploadVideo);
 
-// router.post("/encode", videoController.encodeAsset);
+router.post("/encode", videoController.encodeAsset);
 
 module.exports = router;

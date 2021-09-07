@@ -6,7 +6,8 @@ const request = require('supertest');
 const sinon = require('sinon');
 const app = require("../app")
 
-const videoController = require('../controllers/videoController');
+const VideoController = require('../controllers/VideoControllers');
+const S3Client = require('../configs/AWSConfig');
 
 describe('GET ABOUT APP', () => {
      let about;
@@ -37,6 +38,9 @@ describe('GET ASSETS_KEYS SUCCESS', () => {
  });
 
  it('Should return the key for all records in our storage ', async () => {
+    const s3 = sinon.stub(new S3Client());
+    // const stub = sinon.stub(s3, 'getAssets').returns(result);
+     let videoController = new VideoController(s3);
     sinon.stub(videoController, 'getAssets').resolves(result);
     
     request(app)
