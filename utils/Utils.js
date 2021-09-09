@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 module.exports = class Utils {
 
@@ -11,5 +12,9 @@ module.exports = class Utils {
                 res()
             });
         });
+    }
+
+    createTempFile (name) {
+        return fs.createWriteStream(path.join(__dirname, '../public/temp/' + name));
     }
 }

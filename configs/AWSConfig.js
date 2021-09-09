@@ -10,23 +10,25 @@ module.exports = class AWSConnect {
     }
     
     init() {
+
+        try {
+            AWS.config.update({
+                // accessKeyId: process.env.A÷
+            });
+            
+            this.BUCKET_NAME = process.env.BUCKET_NAME;
+
+            this.s3 = new AWS.S3();
+            this.initBucket();
+        } catch(err) {console.log(err)}
         
-        AWS.config.update({
-            accessKeyId: process.env.ACCESS_KEY_ID,
-            secretAccessKey: process.env.SECRET_ACCESS_KEY,
-            region: process.env.REGION
-        });
-        
-        const BUCKET_NAME = process.env.BUCKET_NAME;
-        this.s3 = new AWS.S3();
-        this.initBucket();
     }
 
     initBucket = async (bucket = this.BUCKET_NAME) => {
        
-        let params = {
-            Bucket : bucket
-        };
+        const params = {
+            Bucket: bucket
+        }
         try {
             await this.s3.headBucket(params).promise();
         } catch(err) { 
@@ -40,7 +42,7 @@ module.exports = class AWSConnect {
         fileStream.on('error', function(err) {
             console.log('File Error', err);
         });
-        let params = {
+        const params = {
             Bucket: bucket,
             Key: key,
             Body: fileStream,
@@ -91,20 +93,29 @@ module.exports = class AWSConnect {
 
     getObjectStream = (key, bucket = this.BUCKET_NAME) => {
 
-        return this.s3.getObject({
-          Bucket: bucket,
-          Key: key
-        }).createReadStream()
+        try {
+            return this.s3.getObject({
+                Bucket: bucket,
+                Key: key
+              }).createReadStream()
+        } catch(err) {console.log(err)}
       }
 
-      uploadFromStream = (key, bucket = this.BUCKET_NAME) =>  {
+      uploadFromStream = (key, body, metadata, bucket = this.BUCKET_NAME) =>  {
         const pass = new Stream.PassThrough();
       
-        const params = {Bucket: bucket, Key: key, Body: pass};
+        const params = {
+            Bucket: bucket,
+            Key: key,
+            Body: body,
+            Metadata: {
+                ffprobe: JSON.stringify(metadata)
+            }
+        };
         try {
             const upload =  this.s3.upload(params).promise();
-            
-              return pass;
+            return upload;
+
         } catch (err) { console.log(err) }
     }
 

@@ -1,4 +1,4 @@
-exports.aboutApp = (req, res) => {
+exports.aboutApp = (req, res, next) => {
     res.status(200).send(about);
 }
 
