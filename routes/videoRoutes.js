@@ -8,6 +8,10 @@ const S3client = require('../configs/AWSConfig');
 const VideoControllers = require('../controllers/VideoControllers');
 const serviceController = require('../controllers/serviceController');
 
+
+
+// I WAS REWORKING THIS IMPLEMTATION, SO IT'S STILL TACKY
+
 class VideoRoute {
 
   constructor(SController, VController) {
