@@ -14,7 +14,7 @@ app.use("/v1/api", videoRoutes);
 
 app.use(function(req, res, next) {
     next(createError(404));
-  });
+});
 
 // error handler
 app.use(function(err, req, res, next) {
@@ -23,7 +23,7 @@ app.use(function(err, req, res, next) {
     status = err.status || 500;
     message = error ? error : message
     res.status(status).send( message);
-  });
+});
 
 const server =  app.listen(PORT, err => {
     console.log( err || "Start server on port " + PORT)

@@ -5,6 +5,11 @@ const { expect, assert } = require('chai');
 const VideoController = require('../controllers/VideoControllers');
 const S3Client = require('../configs/AWSConfig');
 
+class MockS3Client {
+  assets = [{},{}]
+  getAssets =  () => this.assets
+}
+
 describe('GET METHOD TEST', () => {
  let assets;
  let S3ClientStub, videoController;
@@ -106,8 +111,9 @@ describe('GET METHOD TEST', () => {
  });
 
     it('Should return keys for all assets in the S3 bucket', async () => {
-        const s3 = new S3Client();
-        const stub = sinon.stub(s3, 'getAssets').returns(assets);
+        const s3 = new MockS3Client();
+        // const s3 = new S3Client();
+        // const stub = sinon.stub(s3, 'getAssets').returns(assets);
         const expected = {message: "Successful", data: assets.Contents.map(ctn => ctn.Key)}
 
         videoController = new VideoController(s3);

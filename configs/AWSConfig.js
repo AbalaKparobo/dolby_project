@@ -13,10 +13,13 @@ module.exports = class AWSConnect {
 
         try {
             AWS.config.update({
-                // accessKeyId: process.env.A÷
+                accessKeyId: process.env.ACCESS_KEY_ID,
+                secretAccessKey: process.env.SECRET_ACCESS_KEY,
+                region: process.env.REGION
             });
             
-            this.BUCKET_NAME = process.env.BUCKET_NAME;
+            // this.BUCKET_NAME = process.env.BUCKET_NAME;
+            this.BUCKET_NAME = 'videos-folder-001';
 
             this.s3 = new AWS.S3();
             this.initBucket();

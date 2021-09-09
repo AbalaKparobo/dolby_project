@@ -188,6 +188,8 @@ module.exports = class VideoControllers {
             }
         } catch(err) {
             next(createError(400, err));    
+        } finally {
+            if(fs.existsSync(filePath)) {}
         }
     }
 
